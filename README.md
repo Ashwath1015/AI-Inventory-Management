@@ -2,17 +2,6 @@
   
 A professional, full-stack inventory and supply chain management system featuring a grounded AI assistant for natural language business intelligence.
 
-## 🖼️ Demo
-
-| Inventory Management | AI Chat Assistant |
-| :---: | :---: |
-| ![Dashboard](screenshots/s1.PNG) | ![AI Assistant](screenshots/s2.PNG) |
-
-| Dashboard Overview | User Login |
-| :---: | :---: |
-| ![Inventory](screenshots/s3.PNG) | ![Suppliers](screenshots/s4.PNG) |
-
-
 ## 🚀 Features
 
 - **Apple-Inspired UI/UX**: A luxury, minimalist design system featuring glassmorphism, Bento-style KPI grids, and a professional Dark/Light mode theme across the entire application.
@@ -72,6 +61,16 @@ To ensure the app works without requiring an external API key, it uses a **Rule-
 - `suppliers`: Vendor pricing and delivery times.
 - `sales`: Transactional history.
 - `chat_logs`: Audit trail of all AI interactions.
+
+## 🖼️ Demo
+
+| Inventory Management | AI Chat Assistant |
+| :---: | :---: |
+| ![Dashboard](screenshots/s1.PNG) | ![AI Assistant](screenshots/s2.PNG) |
+
+| Dashboard Overview | User Login |
+| :---: | :---: |
+| ![Inventory](screenshots/s3.PNG) | ![Suppliers](screenshots/s4.PNG) |
 
 ## 📝 License
 MIT
