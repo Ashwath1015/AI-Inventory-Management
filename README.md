@@ -8,12 +8,12 @@ Experience the luxury "Apple Aesthetic" and AI-powered intelligence:
 
 | Dashboard Overview | AI Chat Assistant |
 | :---: | :---: |
-| ![Dashboard](client/src/s1.PNG) | ![AI Assistant](client/src/s2.PNG) |
+| ![Dashboard](screenshots/s1.PNG) | ![AI Assistant](screenshots/s2.PNG) |
 | *Bento-style KPI grid with real-time stock and sales analytics.* | *Natural language interface for instant business intelligence.* |
 
 | Inventory Management | Supply Chain Intelligence |
 | :---: | :---: |
-| ![Inventory](client/src/s3.PNG) | ![Suppliers](client/src/s4.PNG) |
+| ![Inventory](screenshots/s3.PNG) | ![Suppliers](screenshots/s4.PNG) |
 | *Clean, minimalist product tracking with automated low-stock alerts.* | *Advanced supplier comparison for optimal procurement.* |
 
 ## 🚀 Features
