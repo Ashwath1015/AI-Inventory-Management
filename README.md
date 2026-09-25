@@ -71,3 +71,4 @@ To ensure the app works without requiring an external API key, it uses a **Rule-
 | Dashboard Overview | User Login |
 | :---: | :---: |
 | ![Inventory](screenshots/s3.PNG) | ![Suppliers](screenshots/s4.PNG) |
+
