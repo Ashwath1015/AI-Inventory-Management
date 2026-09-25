@@ -1,0 +1,157 @@
+const db = require('../config/db');
+const productService = require('./productService');
+const saleService = require('./saleService');
+const supplierService = require('./supplierService');
+
+// Simple in-memory context to remember last interaction per user
+const userContexts = {};
+
+const executeTool = async (name, args) => {
+  switch (name) {
+    case 'get_low_stock_items':
+      return await productService.getLowStockItems();
+    case 'get_sales_summary':
+      return await saleService.getSalesSummary(args.period, args.productId);
+    case 'get_top_sellers':
+      return await saleService.getTopSellers(args.period);
+    case 'get_product_info':
+      const products = await productService.getAllProducts();
+      return products.filter(p => p.name.toLowerCase().includes(args.name.toLowerCase()));
+    case 'compare_suppliers':
+      return await supplierService.compareSuppliers(args.productId);
+    default:
+      throw new Error(`Tool ${name} not found`);
+  }
+};
+
+const processChat = async (userId, question) => {
+  const q = question.toLowerCase().trim();
+  let toolUsed = null;
+  let toolArgs = null;
+  let finalResponse = "";
+
+  try {
+    // 1. GREETINGS
+    const greetings = ['hi', 'hello', 'hey', 'hola', 'good morning', 'good afternoon', 'good evening'];
+    if (greetings.some(greet => q === greet)) {
+      finalResponse = "Hello! Welcome to our AI Inventory Support. How can I help you with your stock, sales, or suppliers today?";
+    }
+    // 2. THANK YOU / GOODBYES
+    else if (['thank you', 'thanks', 'thx', 'thank you so much'].some(thank => q.includes(thank))) {
+      finalResponse = "You are always welcome! Do you need help with any other product stock or supplier comparisons?";
+    }
+    // 3. EXIT / NO MORE HELP
+    else if (['no', 'nothing', 'i am good', 'im good', 'no thanks', 'that is all', 'bye', 'goodbye'].some(exit => q.includes(exit))) {
+      finalResponse = "Hello! I am your AI Inventory Assistant. How can I help you today?";
+    }
+    // 4. YES/NO Affirmations (Context Handling)
+    else if (['yes', 'yeah', 'sure', 'yup', 'ok'].some(aff => q === aff)) {
+      const context = userContexts[userId];
+      if (context && context.lastProductId) {
+        if (context.pendingAction === 'stock_or_supplier') {
+          const products = await productService.getAllProducts();
+          const product = products.find(p => p.id === context.lastProductId);
+          if (product) {
+            finalResponse = `There are currently ${product.stock} units of ${product.name} in stock. Would you also like to compare suppliers for this item?`;
+            userContexts[userId].pendingAction = 'compare_suppliers';
+          }
+        } else if (context.pendingAction === 'compare_suppliers') {
+          toolUsed = 'compare_suppliers';
+          toolArgs = { productId: context.lastProductId };
+          const data = await executeTool(toolUsed, toolArgs);
+          if (data.cheapest.length === 0) {
+            finalResponse = `I'm sorry, I couldn't find any suppliers for that product.`;
+          } else {
+            const cheapest = data.cheapest[0];
+            const fastest = data.fastest[0];
+            finalResponse = `The cheapest supplier is ${cheapest.name} (₹${cheapest.price}) and the fastest is ${fastest.name} (${fastest.delivery_days} days).`;
+          }
+          delete userContexts[userId];
+        }
+      } else {
+        finalResponse = "I'm sorry, I'm not sure what you're agreeing to. Could you please tell me how I can help you?";
+      }
+    }
+    // 5. MOCK AI LOGIC: Keyword-based routing
+    else if (q.includes('reorder') || q.includes('low stock') || q.includes('out of stock')) {
+      toolUsed = 'get_low_stock_items';
+      const data = await executeTool(toolUsed, {});
+      if (data.length === 0) {
+        finalResponse = "Everything looks good! No items are currently below their reorder levels.";
+      } else {
+        const list = data.map(i => `${i.name} (${i.stock} left)`).join(', ');
+        finalResponse = `You should reorder the following items: ${list}.`;
+      }
+    }
+    else if (q.includes('top') || q.includes('best seller') || q.includes('most sold')) {
+      toolUsed = 'get_top_sellers';
+      toolArgs = { period: 'month' };
+      const data = await executeTool(toolUsed, toolArgs);
+      if (data.length === 0) {
+        finalResponse = "I couldn't find any sales data for the current period.";
+      } else {
+        const list = data.map((i, idx) => `${idx + 1}. ${i.name} (${i.total_sold} sold)`).join('\n');
+        finalResponse = `The top selling products this month are:\n${list}`;
+      }
+    }
+    else if (q.includes('sales') || q.includes('revenue') || q.includes('summary')) {
+      toolUsed = 'get_sales_summary';
+      toolArgs = { period: 'day' };
+      const data = await executeTool(toolUsed, toolArgs);
+      const total = data.reduce((sum, item) => sum + parseFloat(item.total || 0), 0);
+      finalResponse = `The total sales for the selected period are ₹${total.toFixed(2)}.`;
+    }
+    else if (q.includes('supplier') || q.includes('cheaper') || q.includes('fastest')) {
+      const products = await productService.getAllProducts();
+      const foundProduct = products.find(p => q.includes(p.name.toLowerCase()));
+      if (foundProduct) {
+        toolUsed = 'compare_suppliers';
+        toolArgs = { productId: foundProduct.id };
+        const data = await executeTool(toolUsed, toolArgs);
+        if (data.cheapest.length === 0) {
+          finalResponse = `I found the product ${foundProduct.name}, but no suppliers are listed for it.`;
+        } else {
+          const cheapest = data.cheapest[0];
+          const fastest = data.fastest[0];
+          finalResponse = `For ${foundProduct.name}: The cheapest supplier is ${cheapest.name} (₹${cheapest.price}) and the fastest is ${fastest.name} (${fastest.delivery_days} days).`;
+        }
+      } else {
+        finalResponse = "I can help you compare suppliers, but please mention a specific product name (e.g., 'cheapest supplier for Keyboard').";
+      }
+    }
+    else if (q.includes('stock') || q.includes('how many') || q.includes('available') || q.includes('quantity')) {
+      const products = await productService.getAllProducts();
+      const foundProduct = products.find(p => q.includes(p.name.toLowerCase()));
+      if (foundProduct) {
+        finalResponse = `There are currently ${foundProduct.stock} units of ${foundProduct.name} in stock.`;
+      } else {
+        finalResponse = "I'm not sure which product you're asking about. Could you please provide the product name (e.g., 'How many Gaming Mouse are in stock?')";
+      }
+    }
+    else {
+      const products = await productService.getAllProducts();
+      const foundProduct = products.find(p => p.name.toLowerCase().includes(q.trim()) || q.trim().includes(p.name.toLowerCase()));
+      if (foundProduct) {
+        userContexts[userId] = {
+          lastProductId: foundProduct.id,
+          pendingAction: 'stock_or_supplier'
+        };
+        finalResponse = `You mentioned ${foundProduct.name}. Would you like to know its stock level or compare its suppliers?`;
+      } else {
+        finalResponse = "Sorry sir/ma'am, I can't help with that. I am specialized in inventory management. Please ask me about stock, sales, or suppliers!";
+      }
+    }
+
+    await db.query(
+      'INSERT INTO chat_logs (user_id, question, function_called, arguments, response) VALUES ($1, $2, $3, $4, $5)',
+      [userId, question, toolUsed, toolArgs ? JSON.stringify(toolArgs) : null, finalResponse]
+    );
+
+    return finalResponse;
+  } catch (err) {
+    console.error('Mock AI Error:', err);
+    throw new Error('The AI encountered an internal error.');
+  }
+};
+
+module.exports = { processChat };
