@@ -4,8 +4,6 @@ A professional, full-stack inventory and supply chain management system featurin
 
 ## 🖼️ Demo
 
-Experience the luxury "Apple Aesthetic" and AI-powered intelligence:
-
 | Dashboard Overview | AI Chat Assistant |
 | :---: | :---: |
 | ![Dashboard](screenshots/s1.PNG) | ![AI Assistant](screenshots/s2.PNG) |
