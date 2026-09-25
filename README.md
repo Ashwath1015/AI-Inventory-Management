@@ -4,7 +4,7 @@ A professional, full-stack inventory and supply chain management system featurin
 
 ## 🚀 Features
 
-- **Apple-Inspired UI/UX**: A luxury, minimalist design system featuring glassmorphism, Bento-style KPI grids, and a professional Dark/Light mode theme across the entire application.
+- **Advanced UI/UX**: A luxury, minimalist design system featuring glassmorphism, Bento-style KPI grids, and a professional Dark/Light mode theme across the entire application.
 - **AI Inventory Assistant**: Chat with your data! Ask about stock levels, top sellers, or the cheapest suppliers using natural language.
 - **Conversational Memory**: The AI remembers the product you are talking about, allowing for natural follow-up questions (e.g., "USB" $\rightarrow$ "Stock?" $\rightarrow$ "Yes").
 - **Real-time Analytics**: Professional dashboard with KPI tiles and an elegant, localized Top Sellers leaderboard.
