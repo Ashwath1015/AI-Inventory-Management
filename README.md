@@ -4,15 +4,14 @@ A professional, full-stack inventory and supply chain management system featurin
 
 ## 🖼️ Demo
 
-| Dashboard Overview | AI Chat Assistant |
+| Inventory Management | AI Chat Assistant |
 | :---: | :---: |
 | ![Dashboard](screenshots/s1.PNG) | ![AI Assistant](screenshots/s2.PNG) |
-| *Bento-style KPI grid with real-time stock and sales analytics.* | *Natural language interface for instant business intelligence.* |
 
-| Inventory Management | Supply Chain Intelligence |
+| Dashboard Overview | User Login |
 | :---: | :---: |
 | ![Inventory](screenshots/s3.PNG) | ![Suppliers](screenshots/s4.PNG) |
-| *Clean, minimalist product tracking with automated low-stock alerts.* | *Advanced supplier comparison for optimal procurement.* |
+
 
 ## 🚀 Features
 
